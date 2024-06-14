@@ -15,6 +15,11 @@ class Producto extends Model
     ];
 
     protected $casts = [
-        'price' => 'double',
+        'price' => 'float:2'
     ];
+
+    public function getPriceAttribute($value)
+    {
+        return number_format($value, 2, '.', '') . '€'; // Format with 2 decimals, no thousands separator, and euro symbol
+    }
 }

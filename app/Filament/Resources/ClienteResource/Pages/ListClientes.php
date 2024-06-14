@@ -4,7 +4,6 @@ namespace App\Filament\Resources\ClienteResource\Pages;
 
 use App\Filament\Resources\ClienteResource;
 use Filament\Actions;
-use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 
 class ListClientes extends ListRecords
@@ -15,13 +14,6 @@ class ListClientes extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
-        ];
-    }
-
-    public function getTabs(): array
-    {
-        return [
-            'Todos' => Tab::make(),
         ];
     }
 }

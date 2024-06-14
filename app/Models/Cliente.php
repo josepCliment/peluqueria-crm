@@ -15,6 +15,12 @@ class Cliente extends Model
         'description'
     ];
 
+    protected $attributtes = [
+        'name',
+        'phone',
+        'description'
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -33,8 +39,8 @@ class Cliente extends Model
         'created_at' => 'datetime',
     ];
 
-    public function tickets()
-    {
-        return $this->hasMany(Ticket::class);
-    }
+    // public function tickets()
+    // {
+    //     return $this->hasMany(Ticket::class);
+    // }
 }

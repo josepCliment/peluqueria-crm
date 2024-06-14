@@ -26,10 +26,16 @@ class Servicio extends Model
     ];
 
     protected $casts = [
-        'price' => 'double'
+        'price' => 'float:2'
     ];
-    public function cliente()
+
+    public function getPriceAttribute($value)
     {
-        return $this->belongsTo(Cliente::class);
+        return number_format($value, 2, '.', '') . '€'; // Format with 2 decimals, no thousands separator, and euro symbol
+    }
+
+    public function tickets()
+    {
+        return $this->belongsToMany(Ticket::class);
     }
 }

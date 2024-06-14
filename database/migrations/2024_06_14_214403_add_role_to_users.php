@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('empleados', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('role')->default('');
-            $table->softDeletes();
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['superadmin', 'user'])->default('user');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('empleados');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('role');
+        });
     }
 };
