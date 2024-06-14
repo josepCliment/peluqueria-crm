@@ -33,8 +33,8 @@ class Cliente extends Model
         'created_at' => 'datetime',
     ];
 
-    // public function tickets()
-    // {
-    //     return $this->hasMany(Ticket::class);
-    // }
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
 }

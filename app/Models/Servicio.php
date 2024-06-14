@@ -28,4 +28,8 @@ class Servicio extends Model
     protected $casts = [
         'price' => 'double'
     ];
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 }
