@@ -29,13 +29,15 @@ class Servicio extends Model
         'price' => 'float:2'
     ];
 
-    public function getPriceAttribute($value)
-    {
-        return number_format($value, 2, '.', '') . '€'; // Format with 2 decimals, no thousands separator, and euro symbol
-    }
 
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class);
+        return $this->belongsToMany(Ticket::class, TicketServicio::class, 'servicio_id')
+            ->withPivot(['discount']);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, TicketServicio::class, 'servicio_id');
     }
 }

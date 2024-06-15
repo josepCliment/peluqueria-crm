@@ -8,27 +8,30 @@ use Illuminate\Database\Eloquent\Model;
 class Ticket extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'status',
+        'payment_method',
+        'total',
+        'total_dto',
+        'description',
+        'cliente_id'
+    ];
 
     protected $attributtes = [
         'status',
         'payment_method',
         'total',
         'total_dto',
-        'description'
+        'description',
+        'cliente_id',
+        'servicio_id'
     ];
 
     protected $casts = [
         'total' => 'float:2',
         'total_dto' => 'float:2',
     ];
-    public function getTotalAttribute($value)
-    {
-        return number_format($value, 2, '.', '') . '€'; // Format with 2 decimals, no thousands separator, and euro symbol
-    }
-    public function getTotal_dtoAttribute($value)
-    {
-        return number_format($value, 2, '.', '') . '€'; // Format with 2 decimals, no thousands separator, and euro symbol
-    }
+
 
     public function cliente()
     {
@@ -37,6 +40,11 @@ class Ticket extends Model
 
     public function servicios()
     {
-        return $this->belongsToMany(Servicio::class);
+        return $this->belongsToMany(Servicio::class, TicketServicio::class, 'ticket_id')->withPivot(['discount']);
+    }
+
+    public function user()
+    {
+        return $this->belongsToMany(User::class, TicketServicio::class, 'ticket_id');
     }
 }

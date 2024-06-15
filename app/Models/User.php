@@ -63,10 +63,17 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
         ];
     }
-
-
     public function isAdmin(): bool
     {
         return $this->role == 'superadmin';
+    }
+
+    public function servicios()
+    {
+        return $this->belongsToMany(Servicio::class, 'ticket_servicio', 'user_id', 'servicio_id');
+    }
+    public function tickets()
+    {
+        return $this->belongsToMany(Ticket::class, 'ticket_servicio', 'user_id', 'ticket_id');
     }
 }

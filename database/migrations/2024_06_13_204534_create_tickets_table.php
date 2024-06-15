@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('cliente_id')->references('id')->on('clientes');
             $table->enum('status', ['paid', 'debt']);
             $table->enum('payment_method', ['card', 'cash'])->nullable()->default(null);
-            $table->double('total');
+            $table->double('total')->default(0);
             $table->double('total_dto')->default(0);
-            $table->text('description');
+            $table->text('description')->nullable()->default(null);
             $table->timestamps();
         });
     }

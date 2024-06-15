@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServicioResource\Pages;
-use App\Filament\Resources\ServicioResource\RelationManagers;
 use App\Models\Servicio;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -12,8 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ServicioResource extends Resource
 {
@@ -56,9 +53,7 @@ class ServicioResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

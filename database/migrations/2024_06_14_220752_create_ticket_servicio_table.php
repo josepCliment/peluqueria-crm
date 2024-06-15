@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ticket_id')->references('id')->on('tickets');
             $table->foreignId('servicio_id')->references('id')->on('servicios');
-            $table->foreignId('user_id')->references('id')->on('users');
-            $table->decimal('discount', 10, 2);
-            $table->decimal('total_price', 10, 2);
+            $table->foreignId('user_id')->references('id')->on('users')->nullable();
+            $table->decimal('discount', 10, 2)->default(0);
             $table->timestamps();
         });
     }
