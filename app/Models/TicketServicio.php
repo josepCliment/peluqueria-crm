@@ -18,6 +18,7 @@ class TicketServicio extends Pivot
         'servicio_id',
         'user_id',
         'discount',
+        'price'
     ];
 
     protected $attributtes = [
@@ -26,8 +27,11 @@ class TicketServicio extends Pivot
         'user_id',
         'discount',
         'created_at',
-        'ticket_id'
+        'ticket_id',
+        'price'
     ];
+
+
 
     protected $casts = [
         'discount' => 'float:2'

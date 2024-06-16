@@ -33,13 +33,13 @@ class Servicio extends Model
 
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class, TicketServicio::class, 'servicio_id')
-            ->withPivot(['discount', 'user_id', 'ticket_id', 'servicio_id']);
+        return $this->belongsToMany(Ticket::class, 'ticket_servicio', 'servicio_id')
+            ->withPivot(['discount', 'user_id', 'price']);
     }
 
     public function user()
     {
         return $this->belongsToMany(User::class, 'ticket_servicio')
-            ->withPivot(['discount', 'user_id', 'ticket_id', 'servicio_id']);
+            ->withPivot(['discount', 'ticket_id', 'price']);
     }
 }

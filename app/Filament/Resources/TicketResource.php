@@ -15,9 +15,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class TicketResource extends Resource
 {
@@ -31,7 +33,8 @@ class TicketResource extends Resource
             ->schema([
                 Select::make('cliente_id')
                     ->searchable()
-                    ->filled(false)
+                    ->filled()
+                    ->preload()
                     ->relationship(name: 'cliente', titleAttribute: 'name'),
             ]);
     }
@@ -40,11 +43,17 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id'),
                 Tables\Columns\TextColumn::make('cliente.name'),
-                TextColumn::make('servicios_sum_price')
-                    ->label('Total factura')
-                    ->sum('servicios', 'price'),
+                TextColumn::make('total')
+                    ->label('Total')
+                    ->money('EUR'),
+                // TextColumn::make('servicios_sum_price')
+                //     ->getStateUsing(function (Model $record) {
+                //         return $record->calcularTotal();
+                //     })
+                //     ->label('Total')
+                //     ->money('EUR'),
+
             ])
             ->filters([
                 //

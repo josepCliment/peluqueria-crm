@@ -70,10 +70,10 @@ class User extends Authenticatable implements FilamentUser
 
     public function servicios()
     {
-        return $this->belongsToMany(Servicio::class, 'ticket_servicio', 'user_id', 'servicio_id');
+        return $this->belongsToMany(Servicio::class, 'ticket_servicio')->withPivot(['servicio_id', 'discount', 'price']);
     }
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class, 'ticket_servicio', 'user_id', 'ticket_id');
+        return $this->belongsToMany(Ticket::class, 'ticket_servicio')->withPivot(['ticket_id', 'discount', 'price']);
     }
 }

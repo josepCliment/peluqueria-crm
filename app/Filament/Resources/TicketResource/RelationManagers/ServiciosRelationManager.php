@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\TicketResource\RelationManagers;
 
+use App\Models\Servicio;
 use App\Models\User;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -11,6 +13,8 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -25,8 +29,8 @@ class ServiciosRelationManager extends RelationManager
             ->schema([
                 TextInput::make('name')
                     ->id('name')->required()
-                    ->label(__('Nombre'))->disabled(),
-                TextInput::make('price')
+                    ->label(__('Servicio'))->disabled(),
+                TextInput::make('pivot.price')
                     ->placeholder('00.00')
                     ->inputMode('decimal')->label(__('Precio'))->disabled()
                     ->required(),
@@ -34,10 +38,12 @@ class ServiciosRelationManager extends RelationManager
                     ->placeholder('00.00')
                     ->inputMode('decimal')->label(__('Descuento'))
                     ->required(),
-                Select::make('user_id')
+                Select::make('pivot.user_id')
+                    ->label('Empleado')
                     ->relationship('user', 'name')
+                    ->disabled()
                     ->preload()
-                    ->required()
+                    ->required(),
 
             ]);
     }
@@ -46,12 +52,12 @@ class ServiciosRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('name')
+            ->paginated(false)
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('discount'),
-                Tables\Columns\TextColumn::make('price'),
-                Tables\Columns\TextColumn::make('user.name')->sortable(),
-
+                Tables\Columns\TextColumn::make('discount')->money('EUR'),
+                Tables\Columns\TextColumn::make('pivot.price')->money('EUR'),
+                Tables\Columns\TextColumn::make('user.name'),
 
             ])
             ->filters([
@@ -61,15 +67,41 @@ class ServiciosRelationManager extends RelationManager
                 AttachAction::make()
                     ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
-                        $action->getRecordSelect(),
+                        $action->getRecordSelect()
+                            ->searchable(),
                         Select::make('user_id')
                             ->relationship('user', 'name')
+                            ->preload()
+                            ->required(),
+                        TextInput::make('discount')
+                            ->label('Descuento')
+                            ->numeric()
                             ->required()
+                            ->default(0),
                     ])
+                    ->before(function ($data) {
+                        $servicio = Servicio::find($data['recordId']);
+                        $data['price'] = $servicio->price;
+                        return $data;
+                    })->action(function (array $data) {
+                        $ticket = $this->ownerRecord;
+                        $servicio = Servicio::find($data['recordId']);
+
+                        $ticket->servicios()->attach($data['recordId'], [
+                            'user_id' => $data['user_id'],
+                            'discount' => $data['discount'],
+                            'price' => $servicio->price, // Incluir el precio del servicio en la tabla pivot
+                        ]);
+                        $ticket->calcularTotal();
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->after(function () {
+                        $ticket = $this->ownerRecord;
+                        $ticket->calcularTotal();
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),

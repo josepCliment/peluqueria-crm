@@ -33,6 +33,18 @@ class Ticket extends Model
         'total_dto' => 'float:2',
     ];
 
+    public function calcularTotal()
+    {
+        $total = 0;
+
+        // Itera sobre los servicios asociados al ticket
+        foreach ($this->servicios as $servicio) {
+            // Suma el precio del servicio menos el descuento aplicado
+            $total += $servicio->pivot->price - $servicio->pivot->discount;
+        }
+        $this->total = $total;
+        $this->save();
+    }
 
     public function cliente()
     {
@@ -44,14 +56,12 @@ class Ticket extends Model
         return $this->belongsToMany(
             Servicio::class,
             'ticket_servicio',
-            'ticket_id',
-            'servicio_id'
-        )->withPivot(['discount', 'user_id', 'ticket_id', 'servicio_id']);
+        )->withPivot(['discount', 'user_id', 'price']);
     }
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'ticket_servicio', 'ticket_id', 'user_id')
-            ->withPivot([['discount', 'user_id', 'ticket_id', 'servicio_id']]);
+        return $this->belongsToMany(User::class, 'ticket_servicio',)
+            ->withPivot([['discount', 'servicio_id', 'price']]);
     }
 }

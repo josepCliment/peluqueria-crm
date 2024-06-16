@@ -37,7 +37,7 @@ class ServicioResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label(__('Nombre'))->searchable(),
-                TextColumn::make('price')->label(__('Precio')),
+                TextColumn::make('price')->label(__('Precio'))->money('EUR'),
             ])
             ->filters([
                 //
