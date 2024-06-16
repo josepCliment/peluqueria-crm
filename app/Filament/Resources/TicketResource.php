@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
 use App\Models\Ticket;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -13,6 +15,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class TicketResource extends Resource
@@ -36,25 +40,11 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('cliente_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('payment_method'),
-                Tables\Columns\TextColumn::make('total')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('total_dto')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('id'),
+                Tables\Columns\TextColumn::make('cliente.name'),
+                TextColumn::make('servicios_sum_price')
+                    ->label('Total factura')
+                    ->sum('servicios', 'price'),
             ])
             ->filters([
                 //

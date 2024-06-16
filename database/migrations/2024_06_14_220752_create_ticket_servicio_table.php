@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('ticket_servicio', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ticket_id')->references('id')->on('tickets');
-            $table->foreignId('servicio_id')->references('id')->on('servicios');
-            $table->foreignId('user_id')->references('id')->on('users')->nullable();
+            $table->foreignId('ticket_id')->references('id')->on('tickets')->cascadeOnDelete();
+            $table->foreignId('servicio_id')->references('id')->on('servicios')->cascadeOnDelete();
+            $table->foreignId('user_id')->references('id')->on('users')->nullable()->default(null);
             $table->decimal('discount', 10, 2)->default(0);
-            $table->timestamps();
         });
     }
 

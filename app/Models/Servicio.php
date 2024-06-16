@@ -14,6 +14,11 @@ class Servicio extends Model
         'price',
         'description'
     ];
+    protected $attributtes = [
+        'name',
+        'price',
+        'description'
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -25,19 +30,16 @@ class Servicio extends Model
         'created_at'
     ];
 
-    protected $casts = [
-        'price' => 'float:2'
-    ];
-
 
     public function tickets()
     {
         return $this->belongsToMany(Ticket::class, TicketServicio::class, 'servicio_id')
-            ->withPivot(['discount']);
+            ->withPivot(['discount', 'user_id', 'ticket_id', 'servicio_id']);
     }
 
-    public function users()
+    public function user()
     {
-        return $this->belongsToMany(User::class, TicketServicio::class, 'servicio_id');
+        return $this->belongsToMany(User::class, 'ticket_servicio')
+            ->withPivot(['discount', 'user_id', 'ticket_id', 'servicio_id']);
     }
 }

@@ -15,7 +15,6 @@ class TicketServicio extends Pivot
 
     protected $fillable = [
         'id',
-        'ticket_id',
         'servicio_id',
         'user_id',
         'discount',
@@ -23,10 +22,15 @@ class TicketServicio extends Pivot
 
     protected $attributtes = [
         'id',
-        'ticket_id',
         'servicio_id',
         'user_id',
         'discount',
+        'created_at',
+        'ticket_id'
+    ];
+
+    protected $casts = [
+        'discount' => 'float:2'
     ];
 
     public function user()
