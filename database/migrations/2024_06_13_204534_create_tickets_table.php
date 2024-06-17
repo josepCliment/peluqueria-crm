@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cliente_id')->references('id')->on('clientes');
-            $table->enum('status', ['paid', 'debt']);
+            $table->enum('status', ['paid', 'debt'])->default('paid');
             $table->enum('payment_method', ['card', 'cash'])->nullable()->default(null);
             $table->double('total')->default(0);
             $table->double('total_dto')->default(0);

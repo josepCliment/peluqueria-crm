@@ -3,21 +3,18 @@
 namespace App\Filament\Resources\TicketResource\RelationManagers;
 
 use App\Models\Servicio;
-use App\Models\User;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Placeholder;
+use Illuminate\Database\Query\Builder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\AttachAction;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\Label;
 
 class ServiciosRelationManager extends RelationManager
 {
@@ -54,10 +51,18 @@ class ServiciosRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->paginated(false)
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('discount')->money('EUR'),
-                Tables\Columns\TextColumn::make('pivot.price')->money('EUR'),
-                Tables\Columns\TextColumn::make('user.name'),
+                Tables\Columns\TextColumn::make('name')->label(__('Servicio')),
+                Tables\Columns\TextColumn::make('user.name')->label(__('Empleado')),
+                Tables\Columns\TextColumn::make('discount')->money('EUR')->label(__('Descuento')),
+                TextColumn::make('price')
+                    ->label(__('Precio'))
+                    ->summarize(
+                        Summarizer::make()
+                        ->label('Total')
+                        ->using(fn (Builder $query): string =>$query->sum('price') - $query->sum('discount'))
+                        ->money('EUR')
+                    )
+                    ->money('EUR'),
 
             ])
             ->filters([
@@ -66,7 +71,7 @@ class ServiciosRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->preloadRecordSelect()
-                    ->form(fn (AttachAction $action): array => [
+                    ->form(fn(AttachAction $action): array => [
                         $action->getRecordSelect()
                             ->searchable(),
                         Select::make('user_id')
@@ -78,6 +83,7 @@ class ServiciosRelationManager extends RelationManager
                             ->numeric()
                             ->required()
                             ->default(0),
+
                     ])
                     ->before(function ($data) {
                         $servicio = Servicio::find($data['recordId']);

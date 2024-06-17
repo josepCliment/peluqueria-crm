@@ -13,6 +13,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\Column;
@@ -25,7 +26,7 @@ class TicketResource extends Resource
 {
     protected static ?string $model = Ticket::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-ticket';
 
     public static function form(Form $form): Form
     {
@@ -35,7 +36,25 @@ class TicketResource extends Resource
                     ->searchable()
                     ->filled()
                     ->preload()
+                    ->required()
                     ->relationship(name: 'cliente', titleAttribute: 'name'),
+                Select::make('status')
+                    ->label(__("Estado"))
+                    ->options([
+                        'paid' => 'Pagado',
+                        'debt' => 'Deudor'
+                    ])
+                    ->live()
+                    ->required(),
+
+                Select::make('payment_method')
+                    ->label(__("Método de pago"))
+                    ->options([
+                        'card' => 'Tarjeta',
+                        'cash' => 'Efectivo'
+                    ])
+                    ->reactive()
+                    ->disabled(fn(Get $get): bool => !filled($get('status'))),
             ]);
     }
 
@@ -47,13 +66,23 @@ class TicketResource extends Resource
                 TextColumn::make('total')
                     ->label('Total')
                     ->money('EUR'),
-                // TextColumn::make('servicios_sum_price')
-                //     ->getStateUsing(function (Model $record) {
-                //         return $record->calcularTotal();
-                //     })
-                //     ->label('Total')
-                //     ->money('EUR'),
-
+                TextColumn::make('status')
+                    ->label(__("Estado"))
+                    ->badge()
+                    ->getStateUsing(function (Model $record) {
+                        return $record->status === "paid" ? 'Pagado' : 'Deuda';
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'Pagado' => 'success',
+                        'Deuda' => 'danger',
+                    })->sortable(),
+                TextColumn::make('payment_method')
+                    ->label(__("Estado"))
+                    ->getStateUsing(function (Model $record) {
+                        return $record->payment_method === "card" ? 'Tarjeta' : ($record->payment_method === "cash" ? 'Efectivo' : '');
+                    })
+                    ->badge()
+                    ->sortable()
             ])
             ->filters([
                 //
