@@ -5,7 +5,6 @@ namespace App\Filament\Widgets;
 use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Models\Ticket;
-use App\Models\TicketServicio;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;

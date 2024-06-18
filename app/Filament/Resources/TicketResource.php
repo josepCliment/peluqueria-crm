@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
+use App\Filament\Resources\TicketResource\Widgets\TotalTicket;
 use App\Models\Ticket;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Grid;
@@ -12,14 +13,17 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Wizard;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Panel;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
 
 class TicketResource extends Resource
@@ -32,29 +36,32 @@ class TicketResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('cliente_id')
-                    ->searchable()
-                    ->filled()
-                    ->preload()
-                    ->required()
-                    ->relationship(name: 'cliente', titleAttribute: 'name'),
-                Select::make('status')
-                    ->label(__("Estado"))
-                    ->options([
-                        'paid' => 'Pagado',
-                        'debt' => 'Deudor'
-                    ])
-                    ->live()
-                    ->required(),
+                Grid::make(3)
+                    ->schema([
+                        Select::make('cliente_id')
+                            ->searchable()
+                            ->filled()
+                            ->preload()
+                            ->required()
+                            ->relationship(name: 'cliente', titleAttribute: 'name'),
+                        Select::make('status')
+                            ->label(__("Estado"))
+                            ->options([
+                                'paid' => 'Pagado',
+                                'debt' => 'Deudor'
+                            ])
+                            ->live(),
 
-                Select::make('payment_method')
-                    ->label(__("Método de pago"))
-                    ->options([
-                        'card' => 'Tarjeta',
-                        'cash' => 'Efectivo'
+                        Select::make('payment_method')
+                            ->label(__("Método de pago"))
+                            ->options([
+                                'card' => 'Tarjeta',
+                                'cash' => 'Efectivo'
+                            ])
+                            ->reactive()
+                            ->disabled(fn (Get $get): bool => !filled($get('status'))),
                     ])
-                    ->reactive()
-                    ->disabled(fn(Get $get): bool => !filled($get('status'))),
+
             ]);
     }
 
@@ -72,7 +79,7 @@ class TicketResource extends Resource
                     ->getStateUsing(function (Model $record) {
                         return $record->status === "paid" ? 'Pagado' : 'Deuda';
                     })
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'Pagado' => 'success',
                         'Deuda' => 'danger',
                     })->sortable(),
@@ -82,7 +89,7 @@ class TicketResource extends Resource
                         return $record->payment_method === "card" ? 'Tarjeta' : ($record->payment_method === "cash" ? 'Efectivo' : '');
                     })
                     ->badge()
-                    ->sortable()
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -102,6 +109,11 @@ class TicketResource extends Resource
         return [
             ServiciosRelationManager::class,
         ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [];
     }
 
     public static function getPages(): array

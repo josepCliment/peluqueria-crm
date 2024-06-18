@@ -28,6 +28,10 @@ class Ticket extends Model
         'servicio_id'
     ];
 
+    protected $hidden = [
+        'id'
+    ];
+
     protected $casts = [
         'total' => 'float:2',
         'total_dto' => 'float:2',
@@ -40,10 +44,20 @@ class Ticket extends Model
         // Itera sobre los servicios asociados al ticket
         foreach ($this->servicios as $servicio) {
             // Suma el precio del servicio menos el descuento aplicado
-            $total += $servicio->pivot->price - $servicio->pivot->discount;
+            $total += ($servicio->pivot->price * $servicio->pivot->quantity) - $servicio->pivot->discount;
         }
         $this->total = $total;
         $this->save();
+    }
+    public function getTotal()
+    {
+        $total = 0;
+        // Itera sobre los servicios asociados al ticket
+        foreach ($this->servicios as $servicio) {
+            // Suma el precio del servicio menos el descuento aplicado
+            $total += ($servicio->pivot->cprice * $servicio->pivot->quantity) - $servicio->pivot->discount;
+        }
+        return $total;
     }
 
     public function cliente()
@@ -55,13 +69,12 @@ class Ticket extends Model
     {
         return $this->belongsToMany(
             Servicio::class,
-            'ticket_servicio',
-        )->withPivot(['discount', 'user_id', 'price']);
+            TicketServicio::class,
+        )->withPivot(['pivot_id', 'discount', 'cprice', 'quantity', 'user_id'])->using(TicketServicio::class);
     }
-
     public function users()
     {
-        return $this->belongsToMany(User::class, 'ticket_servicio',)
-            ->withPivot([['discount', 'servicio_id', 'price']]);
+        return $this->belongsToMany(User::class, TicketServicio::class)
+            ->withPivot([['pivot_id', 'discount', 'servicio_id', 'cprice', 'quantity']])->using(TicketServicio::class);
     }
 }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ticket_servicio', function (Blueprint $table) {
-            $table->id();
+            $table->id('pivot_id');
             $table->foreignId('ticket_id')->references('id')->on('tickets')->cascadeOnDelete();
             $table->foreignId('servicio_id')->references('id')->on('servicios')->cascadeOnDelete();
             $table->foreignId('user_id')->references('id')->on('users')->nullable()->default(null);

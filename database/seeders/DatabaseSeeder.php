@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Cliente;
-use App\Models\Producto;
 use App\Models\Servicio;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,8 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create(['name' => 'Test', 'email' => 'test@test.com', 'password' => bcrypt('test123'), 'role' => 'superadmin']);
-        Cliente::factory(20)->create();
+        // User::factory()->create(['name' => 'Test', 'email' => 'test@test.com', 'password' => bcrypt('test123'), 'role' => 'superadmin']);
+        // Cliente::factory(20)->create();
         Servicio::factory(10)->create();
     }
 }

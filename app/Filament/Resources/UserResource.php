@@ -70,16 +70,14 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            ServiciosRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getPages(): array

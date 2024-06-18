@@ -20,6 +20,7 @@ class Servicio extends Model
         'description'
     ];
 
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -27,19 +28,20 @@ class Servicio extends Model
      */
     protected $hidden = [
         'updated_at',
-        'created_at'
+        'created_at',
+        'id'
     ];
 
 
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class, 'ticket_servicio', 'servicio_id')
-            ->withPivot(['discount', 'user_id', 'price']);
+        return $this->belongsToMany(Ticket::class, TicketServicio::class, 'servicio_id')
+            ->withPivot(['pivot_id', 'discount', 'user_id', 'cprice', 'quantity'])->using(TicketServicio::class);
     }
 
     public function user()
     {
-        return $this->belongsToMany(User::class, 'ticket_servicio')
-            ->withPivot(['discount', 'ticket_id', 'price']);
+        return $this->belongsToMany(User::class, TicketServicio::class)
+            ->withPivot(['pivot_id', 'discount', 'ticket_id', 'cprice', 'quantity'])->using(TicketServicio::class);
     }
 }
