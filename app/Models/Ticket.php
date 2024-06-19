@@ -70,11 +70,11 @@ class Ticket extends Model
         return $this->belongsToMany(
             Servicio::class,
             TicketServicio::class,
-        )->withPivot(['pivot_id', 'discount', 'cprice', 'quantity', 'user_id'])->using(TicketServicio::class);
+        )->withPivot(['pivot_id', 'ticket_id', 'discount', 'cprice', 'quantity', 'user_id'])->using(TicketServicio::class);
     }
     public function users()
     {
         return $this->belongsToMany(User::class, TicketServicio::class)
-            ->withPivot([['pivot_id', 'discount', 'servicio_id', 'cprice', 'quantity']])->using(TicketServicio::class);
+            ->withPivot([['pivot_id', 'discount', 'servicio_id', 'cprice', 'quantity', 'ticket_id']])->using(TicketServicio::class);
     }
 }

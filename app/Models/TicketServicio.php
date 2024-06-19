@@ -13,6 +13,8 @@ class TicketServicio extends Pivot
 
     protected $primaryKey = 'pivot_id';
     public $incrementing = true;
+
+    protected $attributtes = [];
     protected $guarded = [
         'pivot_id',
         'created_at',

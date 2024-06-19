@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\TicketResource\RelationManagers;
 
 use App\Models\Servicio;
+use App\Models\TicketServicio;
 use App\Models\User;
+use Closure;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Query\Builder;
@@ -19,6 +22,7 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Stmt\Label;
 
@@ -41,11 +45,21 @@ class ServiciosRelationManager extends RelationManager
                     ->placeholder('00.00')
                     ->inputMode('decimal')->label(__('Descuento'))
                     ->required(),
-                Select::make('username')
+                TextInput::make('quantity')
+                    ->placeholder('0')
+                    ->default(1)
+                    ->inputMode('decimal')->label(__('Cantidad'))
+                    ->required(),
+                Select::make('user_id')
                     ->label('Empleado')
                     ->relationship('user', 'name')
-                    ->preload()
                     ->required(),
+                Hidden::make('ticket_id')
+                    ->default(function () {
+                        return $this->ownerRecord->id;
+                    }),
+                Hidden::make('pivot_id'),
+                Hidden::make('servicio_id')
 
             ]);
     }
@@ -133,7 +147,21 @@ class ServiciosRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->action(function (array $data) {
+                    $ticket = $this->ownerRecord;
+                    // Attach the servicio to the ticket
+                    $ticket->servicios()->attach($data['pivot_id'], [
+                        'user_id' => $data['user_id'],
+                        'discount' => $data['discount'],
+                        'quantity' => $data['quantity'],
+                        'cprice' => $data['cprice'],
+                        'ticket_id' => $data['ticket_id'],
+                        'servicio_id' => $data['servicio_id'],
+
+                    ]);
+
+                    $ticket->calcularTotal();
+                }),
                 Tables\Actions\DetachAction::make()
                     ->after(function () {
                         $ticket = $this->ownerRecord;
