@@ -44,7 +44,7 @@ class Ticket extends Model
         // Itera sobre los servicios asociados al ticket
         foreach ($this->servicios as $servicio) {
             // Suma el precio del servicio menos el descuento aplicado
-            $total += ($servicio->pivot->price * $servicio->pivot->quantity) - $servicio->pivot->discount;
+            $total += ($servicio->pivot->cprice * $servicio->pivot->quantity) - $servicio->pivot->discount;
         }
         $this->total = $total;
         $this->save();
