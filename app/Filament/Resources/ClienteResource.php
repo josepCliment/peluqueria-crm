@@ -38,7 +38,6 @@ class ClienteResource extends Resource
             ->columns([
                 TextColumn::make('name')->label(__('Nombre'))->searchable(),
                 TextColumn::make('phone')->label(__('Telefono')),
-
             ])
             ->filters([
                 //

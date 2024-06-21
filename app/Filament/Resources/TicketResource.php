@@ -44,22 +44,22 @@ class TicketResource extends Resource
                             ->preload()
                             ->required()
                             ->relationship(name: 'cliente', titleAttribute: 'name'),
-                        Select::make('status')
-                            ->label(__("Estado"))
-                            ->options([
-                                'paid' => 'Pagado',
-                                'debt' => 'Deudor'
-                            ])
-                            ->live(),
+                        // Select::make('status')
+                        //     ->label(__("Estado"))
+                        //     ->options([
+                        //         'paid' => 'Pagado',
+                        //         'debt' => 'Deudor'
+                        //     ])
+                        //     ->live(),
 
-                        Select::make('payment_method')
-                            ->label(__("Método de pago"))
-                            ->options([
-                                'card' => 'Tarjeta',
-                                'cash' => 'Efectivo'
-                            ])
-                            ->reactive()
-                            ->disabled(fn (Get $get): bool => !filled($get('status'))),
+                        // Select::make('payment_method')
+                        //     ->label(__("Método de pago"))
+                        //     ->options([
+                        //         'card' => 'Tarjeta',
+                        //         'cash' => 'Efectivo'
+                        //     ])
+                        //     ->reactive()
+                        //     ->disabled(fn (Get $get): bool => !filled($get('status'))),
                     ])
 
             ]);
@@ -115,6 +115,7 @@ class TicketResource extends Resource
     {
         return [];
     }
+
 
     public static function getPages(): array
     {

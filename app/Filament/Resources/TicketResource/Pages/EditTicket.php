@@ -13,7 +13,14 @@ class EditTicket extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            $this->getSaveFormAction()
+                ->formId('form')
+                ->label('Cerrar ticket'),
         ];
+    }
+
+    public function getFormActions(): array
+    {
+        return [];
     }
 }
