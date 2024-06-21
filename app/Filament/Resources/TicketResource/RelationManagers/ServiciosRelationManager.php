@@ -15,9 +15,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\AttachAction;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
@@ -50,10 +52,6 @@ class ServiciosRelationManager extends RelationManager
                     ->default(1)
                     ->inputMode('decimal')->label(__('Cantidad'))
                     ->required(),
-                Select::make('user_id')
-                    ->label('Empleado')
-                    ->relationship('user', 'name')
-                    ->required(),
                 Hidden::make('ticket_id')
                     ->default(function () {
                         return $this->ownerRecord->id;
@@ -71,13 +69,9 @@ class ServiciosRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->paginated(false)
             ->columns([
-                TextColumn::make('pivot_id')->label(__('ID')),
                 TextColumn::make('name')->label(__('Servicio/Producto')),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->formatStateUsing(function ($state, $record) {
-                        $user = $record->user()->first();
-                        return $user ? $user->name : '-';
-                    })
+                SelectColumn::make('user_id')
+                    ->options(User::all()->pluck('name', 'id'))
                     ->label(__('Empleado')),
                 Tables\Columns\TextColumn::make('discount')->money('EUR')->label(__('Descuento'))
                     ->badge()->color('danger')
@@ -104,6 +98,8 @@ class ServiciosRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
+                    ->label('Añadir servicio')
+                    ->icon('heroicon-o-plus')
                     ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect()
@@ -147,21 +143,31 @@ class ServiciosRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->action(function (array $data) {
-                    $ticket = $this->ownerRecord;
-                    // Attach the servicio to the ticket
-                    $ticket->servicios()->attach($data['pivot_id'], [
-                        'user_id' => $data['user_id'],
-                        'discount' => $data['discount'],
-                        'quantity' => $data['quantity'],
-                        'cprice' => $data['cprice'],
-                        'ticket_id' => $data['ticket_id'],
-                        'servicio_id' => $data['servicio_id'],
+                Tables\Actions\EditAction::make()
+                    ->before(function ($data) {
+                        Log::info($data);
+                        $servicio = Servicio::find($data['servicio_id']);
+                        $data['cprice'] = $servicio->price;
+                        $data['discount'] = $servicio->discount;
+                        $data['quantity'] = $servicio->quantity;
+                        return $data;
+                    })
+                    ->action(function (array $data) {
+                        $ticket = $this->ownerRecord;
+                        $ticketservicio = TicketServicio::where('pivot_id', $data['pivot_id']);
+                        $ticketservicio->update([
+                            'discount' => $data['discount'],
+                            'quantity' => $data['quantity'],
+                            'cprice' => $data['cprice'],
+                            'servicio_id' => $data['servicio_id'],
+                        ]);
 
-                    ]);
-
-                    $ticket->calcularTotal();
-                }),
+                        $ticket->calcularTotal();
+                        Notification::make()
+                            ->title("Servicio actualizado correctamente")
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\DetachAction::make()
                     ->after(function () {
                         $ticket = $this->ownerRecord;

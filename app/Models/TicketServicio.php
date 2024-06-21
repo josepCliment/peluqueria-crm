@@ -10,13 +10,12 @@ use Illuminate\Support\Facades\Log;
 class TicketServicio extends Pivot
 {
     protected $table = 'ticket_servicio';
-
+    public  $timestamps = false;
     protected $primaryKey = 'pivot_id';
     public $incrementing = true;
 
     protected $attributtes = [];
     protected $guarded = [
-        'pivot_id',
         'created_at',
         'updated_at',
     ];
