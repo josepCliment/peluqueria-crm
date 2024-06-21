@@ -26,8 +26,5 @@ class AppServiceProvider extends ServiceProvider
             $switch
                 ->locales(['es']); // also accepts a closure
         });
-        // FilamentAsset::register([
-        //     Js::make('chart-js-plugins', (new Vite())->asset('resources/js/chartjs-plugin-datalabels.js'))->module(),
-        // ]);
     }
 }

@@ -22,7 +22,7 @@ class UserAdminChart extends ChartWidget
 
         $activeFilter = $this->filter;
         $userrevenue = Ticket::selectRaw("year(created_at) year, monthname(created_at) month, SUM(cprice* quantity) as total  ")
-            ->leftJoin('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
+            ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
             ->where('user_id', '=', $activeFilter)
             ->groupBy('year', 'month')
             ->get()

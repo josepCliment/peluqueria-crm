@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('servicio_id')->references('id')->on('servicios')->cascadeOnDelete();
             $table->foreignId('user_id')->references('id')->on('users')->nullable()->default(null);
             $table->decimal('discount', 10, 2)->default(0);
-            $table->decimal('price', 10, 2)->default(0);
+            $table->decimal('cprice', 10, 2)->default(0);
+            $table->integer('quantity')->default(1);
         });
     }
 
