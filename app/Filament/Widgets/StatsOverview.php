@@ -2,9 +2,11 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\DashboardResource\Widgets\RevenueMonthly;
 use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Models\Ticket;
+use App\Models\TicketServicio;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -17,18 +19,17 @@ class StatsOverview extends BaseWidget
     {
         $tickets = Ticket::whereMonth('created_at', '=', Carbon::now()->month)->sum('total');
 
-
         return [
             Stat::make('Clientes totales', Cliente::all()->count()),
             Stat::make('Caja total este mes', $tickets . "€"),
+
         ];
     }
 
-
-    private function getTotalPerUser()
+    protected function getWidgets(): array
     {
-        return Ticket::select('user_id', DB::raw('SUM(total) as total'))
-            ->groupBy('user_id')
-            ->get();
+        return [
+            RevenueMonthly::class
+        ];
     }
 }

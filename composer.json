@@ -15,6 +15,7 @@
         "codeat3/blade-fluentui-system-icons": "^1.33",
         "codeat3/blade-vaadin-icons": "^1.5",
         "filament/filament": "^3.2.91",
+        "flowframe/laravel-trend": "^0.2.0",
         "laravel/framework": "^11.9",
         "laravel/pulse": "^1.2",
         "laravel/tinker": "^2.9",
