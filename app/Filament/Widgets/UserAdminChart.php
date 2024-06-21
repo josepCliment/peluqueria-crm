@@ -48,6 +48,15 @@ class UserAdminChart extends ChartWidget
                         ],
                     ],
                 ],
+                'plugins' => [
+                    'datalabels' => [
+                        'display' => true,
+                        'borderColor' => 'white',
+                        'borderRadius' => 25,
+                        'borderWidth' => 2,
+                        'color' => 'white',
+                    ],
+                ]
             ];
     }
 

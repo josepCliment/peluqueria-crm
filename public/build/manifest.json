@@ -1,0 +1,20 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-l0sNRNKZ.js",
+    "name": "app",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-C1-XIpUa.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/chartjs-plugin-datalabels.js": {
+    "file": "assets/chartjs-plugin-datalabels-DB0LGnSJ.js",
+    "name": "chartjs-plugin-datalabels",
+    "src": "resources/js/chartjs-plugin-datalabels.js",
+    "isEntry": true
+  }
+}
