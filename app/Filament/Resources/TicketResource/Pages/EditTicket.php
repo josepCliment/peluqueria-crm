@@ -15,7 +15,7 @@ class EditTicket extends EditRecord
         return [
             $this->getSaveFormAction()
                 ->formId('form')
-                ->label('Cerrar ticket'),
+                ->label('Guardar'),
         ];
     }
 

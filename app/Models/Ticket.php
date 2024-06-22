@@ -35,7 +35,13 @@ class Ticket extends Model
     protected $casts = [
         'total' => 'float:2',
         'total_dto' => 'float:2',
+        'is_paid' => 'boolean'
     ];
+
+    public function is_paid()
+    {
+        return $this->status === 'paid';
+    }
 
     public function calcularTotal()
     {
@@ -48,16 +54,6 @@ class Ticket extends Model
         }
         $this->total = $total;
         $this->save();
-    }
-    public function getTotal()
-    {
-        $total = 0;
-        // Itera sobre los servicios asociados al ticket
-        foreach ($this->servicios as $servicio) {
-            // Suma el precio del servicio menos el descuento aplicado
-            $total += ($servicio->pivot->cprice * $servicio->pivot->quantity) - $servicio->pivot->discount;
-        }
-        return $total;
     }
 
     public function cliente()

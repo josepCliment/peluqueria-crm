@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Cliente extends Model
 {
@@ -39,8 +40,13 @@ class Cliente extends Model
         'created_at' => 'datetime',
     ];
 
-    // public function tickets()
-    // {
-    //     return $this->hasMany(Ticket::class);
-    // }
+
+    public function totalDebt()
+    {
+        return $this->tickets()->where('status', '=', 'debt')->sum('total');
+    }
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
 }

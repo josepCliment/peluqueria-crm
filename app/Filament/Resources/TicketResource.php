@@ -4,27 +4,28 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
-use App\Filament\Resources\TicketResource\Widgets\TotalTicket;
+use App\Models\Cliente;
 use App\Models\Ticket;
-use Filament\Forms\Components\Builder;
-use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
-use Filament\Panel;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\Column;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\HtmlString;
+use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 class TicketResource extends Resource
 {
@@ -34,34 +35,45 @@ class TicketResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $total_debt = 0;
+        $record = $form->getRecord();
+        if ($record) {
+            $client = $form->getRecord()->cliente_id;
+            $total_debt = Cliente::find($client)->totalDebt();
+        }
         return $form
             ->schema([
-                Grid::make(3)
-                    ->schema([
-                        Select::make('cliente_id')
-                            ->searchable()
-                            ->filled()
-                            ->preload()
-                            ->required()
-                            ->relationship(name: 'cliente', titleAttribute: 'name'),
-                        // Select::make('status')
-                        //     ->label(__("Estado"))
-                        //     ->options([
-                        //         'paid' => 'Pagado',
-                        //         'debt' => 'Deudor'
-                        //     ])
-                        //     ->live(),
 
-                        // Select::make('payment_method')
-                        //     ->label(__("Método de pago"))
-                        //     ->options([
-                        //         'card' => 'Tarjeta',
-                        //         'cash' => 'Efectivo'
-                        //     ])
-                        //     ->reactive()
-                        //     ->disabled(fn (Get $get): bool => !filled($get('status'))),
-                    ])
+                Section::make([
+                    Select::make('cliente_id')
+                        ->searchable()
+                        ->filled()
+                        ->preload()
+                        ->required()
+                        ->relationship(name: 'cliente', titleAttribute: 'name'),
+                    Radio::make('payment_method')
+                        ->hidden(fn (string $operation): bool => $operation === 'create')
+                        ->reactive()
+                        ->disabled(fn (Get $get): bool => !filled($get('status')))
+                        ->options([
+                            'card' => 'Tarjeta',
+                            'cash' => 'Efectivo'
+                        ]),
+                    Select::make('status')
+                        ->hidden(fn (string $operation): bool => $operation === 'create')
+                        ->label(__("Estado"))
+                        ->options([
+                            'paid' => 'Pagado',
+                            'debt' => 'No pagado'
+                        ])
+                        ->live(),
 
+                    Placeholder::make('total_debt')
+                        ->hidden(fn (string $operation): bool => $operation === 'create')
+                        ->label('Deuda acumulada')
+                        ->content(new HtmlString("<span style='color: red; font-size: 16px;'>$total_debt €</span>"))
+
+                ])->columns(2),
             ]);
     }
 
@@ -96,6 +108,7 @@ class TicketResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
