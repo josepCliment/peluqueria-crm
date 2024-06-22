@@ -11,3 +11,5 @@
 ##ToDo
 [x] Add charts to view the reports. \
 [ ] Make tests on the creation of Tickets. \ 
+[ ] Change dashboard for normal users \
+[ ] Add a new list where all users with debt tickets will be shown. (Admin) \
