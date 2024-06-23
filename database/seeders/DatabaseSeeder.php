@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bill;
 use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Models\User;
@@ -21,7 +22,8 @@ class DatabaseSeeder extends Seeder
         //     'nickname' => 'test',
         //     'password' => bcrypt('test123'), 'role' => 'superadmin'
         // ]);
-        Cliente::factory(3000)->create();
-        Servicio::factory(40)->create();
+        // Cliente::factory(3000)->create();
+        // Servicio::factory(40)->create();
+        Bill::factory(2000)->create();
     }
 }

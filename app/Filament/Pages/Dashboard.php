@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use Filament\Tables\Columns\Layout\Panel;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 class Dashboard extends \Filament\Pages\Dashboard
 {

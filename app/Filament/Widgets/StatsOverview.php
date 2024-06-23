@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\DashboardResource\Widgets\RevenueMonthly;
+use App\Models\Bill;
 use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Models\Ticket;
@@ -18,19 +19,34 @@ class StatsOverview extends BaseWidget
     protected static ?string $pollingInterval = null;
     protected function getStats(): array
     {
-
-        $statMonthly = $this->getTotalRevenueMonthlyStat();
         return [
             Stat::make('Clientes totales', $this->getTotalClients()),
-            $statMonthly,
-            Stat::make('Tickets totales', $this->getTotalTicketsPerMonth()),
-
+            $this->getTotalRevenueMonthlyStat(),
+            Stat::make('Facturas este mes', Bill::whereMonth('payment_date', Carbon::now()->month)
+                ->whereYear('payment_date', Carbon::now()->year)
+                ->count()),
+            $this->getTotalBenefit()
         ];
+    }
+
+
+    protected function getTotalBenefit()
+    {
+        $total_bills_amount = Bill::whereMonth('payment_date', Carbon::now()->month)->sum('amount');
+        $total_benefits = Ticket::whereMonth('created_at', '=', Carbon::now())->sum('total');
+        $total_revenue = $total_benefits - $total_bills_amount;
+        return Stat::make('Beneficios totales: ', ($total_revenue) . " €")
+            ->color($this->checkTotalBenefits($total_revenue) ? 'success' : 'danger');
+    }
+
+    private function checkTotalBenefits($total_revenue): bool
+    {
+        return $total_revenue < 0;
     }
 
     protected function getTotalRevenueMonthlyStat(): Stat
     {
-        $ticket =  Ticket::whereMonth('created_at', '=', Carbon::now())->sum('total');
+        $ticket = Ticket::whereMonth('created_at', '=', Carbon::now())->sum('total');
         $tickets_month_before = Ticket::whereMonth('created_at', '=', Carbon::now()->subMonth())->sum('total');
         $diff_total_between_months = $ticket - $tickets_month_before;
         return Stat::make('Caja total este mes', $ticket . "€")
@@ -61,8 +77,6 @@ class StatsOverview extends BaseWidget
 
     protected function getWidgets(): array
     {
-        return [
-            RevenueMonthly::class
-        ];
+        return [];
     }
 }
