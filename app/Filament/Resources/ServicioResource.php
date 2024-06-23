@@ -18,6 +18,9 @@ class ServicioResource extends Resource
     protected static ?string $model = Servicio::class;
 
     protected static ?string $navigationIcon = 'ri-scissors-cut-fill';
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Otros';
+
 
     public static function form(Form $form): Form
     {

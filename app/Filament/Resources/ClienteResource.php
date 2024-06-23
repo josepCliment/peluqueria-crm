@@ -19,7 +19,10 @@ use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class ClienteResource extends Resource
 {
+    protected static ?string $slug = 'clientes';
     protected static ?string $navigationIcon = 'vaadin-group';
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Clientes';
 
     public static function form(Form $form): Form
     {
@@ -37,7 +40,9 @@ class ClienteResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label(__('Nombre'))->searchable(),
-                TextColumn::make('phone')->label(__('Telefono')),
+                TextColumn::make('phone')->label(__('Telefono'))
+                    ->badge()
+                    ->searchable(),
             ])
             ->filters([
                 //

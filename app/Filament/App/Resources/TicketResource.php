@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Enums\Ticket\TicketPayment;
 use App\Filament\App\Resources\TicketResource\Pages;
 use App\Filament\App\Resources\TicketResource\RelationManagers;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
@@ -42,8 +43,8 @@ class TicketResource extends Resource
                 Section::make([
                     Select::make('cliente_id')
                         ->required()
-                        ->relationship(name: 'cliente', titleAttribute: 'name')
-                        ->disabled(),
+                        ->searchable()
+                        ->relationship(name: 'cliente', titleAttribute: 'name'),
                     Radio::make('payment_method')
                         ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->reactive()
@@ -89,7 +90,7 @@ class TicketResource extends Resource
                 TextColumn::make('payment_method')
                     ->label(__("Forma de pago"))
                     ->getStateUsing(function (Model $record) {
-                        return $record->payment_method === "card" ? 'Tarjeta' : ($record->payment_method === "cash" ? 'Efectivo' : '');
+                        return $record->payment_method === TicketPayment::CARD ? 'Tarjeta' : ($record->payment_method === TicketPayment::CASH ? 'Efectivo' : '');
                     })
                     ->badge(),
                 TextColumn::make('created_at')

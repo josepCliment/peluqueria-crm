@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Ticket\TicketState;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +40,7 @@ class Ticket extends Model
 
     public function is_paid()
     {
-        return $this->status === 'paid';
+        return $this->status === TicketState::PAGADO->value;
     }
 
     public function calcularTotal()

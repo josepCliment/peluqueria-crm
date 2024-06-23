@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Ticket\TicketPayment;
+use App\Enums\Ticket\TicketState;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
 use App\Models\Cliente;
@@ -56,21 +58,19 @@ class TicketResource extends Resource
                         ->reactive()
                         ->disabled(fn (Get $get): bool => !filled($get('status')))
                         ->options([
-                            'card' => 'Tarjeta',
-                            'cash' => 'Efectivo'
+                            TicketPayment::CARD => 'Tarjeta',
+                            TicketPayment::CASH => 'Efectivo'
                         ]),
                     Select::make('status')
                         ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->label(__("Estado"))
-                        ->options([
-                            'paid' => 'Pagado',
-                            'debt' => 'No pagado'
-                        ])
+                        ->options(TicketState::class)
                         ->live(),
 
                     Placeholder::make('total_debt')
                         ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->label('Deuda acumulada')
+                        ->live()
                         ->content(new HtmlString("<span style='color: red; font-size: 16px;'>$total_debt €</span>"))
 
                 ])->columns(2),
@@ -98,7 +98,7 @@ class TicketResource extends Resource
                 TextColumn::make('payment_method')
                     ->label(__("Estado"))
                     ->getStateUsing(function (Model $record) {
-                        return $record->payment_method === "card" ? 'Tarjeta' : ($record->payment_method === "cash" ? 'Efectivo' : '');
+                        return $record->payment_method === TicketPayment::CARD ? 'Tarjeta' : ($record->payment_method === TicketPayment::CASH ? 'Efectivo' : '');
                     })
                     ->badge()
                     ->sortable(),
