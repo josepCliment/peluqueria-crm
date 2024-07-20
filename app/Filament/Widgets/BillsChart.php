@@ -14,7 +14,7 @@ class BillsChart extends ApexChartWidget
      * @var string
      */
     protected static ?string $chartId = 'Facturas';
-
+    protected static ?int $sort = 1;
     /**
      * Widget Title
      *
@@ -29,14 +29,14 @@ class BillsChart extends ApexChartWidget
      * @return array
      */
     protected static ?string $pollingInterval = null;
-    
+
     protected function getOptions(): array
     {
 
-        $ticket_monthly = Bill::selectRaw("year(payment_date) year, monthname(payment_date) month, SUM(amount) as total ")
+        $ticket_monthly = env('DB_CONNECTION') === 'mysql' ? Bill::selectRaw("year(payment_date) year, monthname(payment_date) month, SUM(amount) as total ")
             ->groupBy('year', 'month')
             ->get()
-            ->toArray();
+            ->toArray() : [];
         $data = array_fill(0, 12, 0);
 
         foreach ($ticket_monthly as $item) {

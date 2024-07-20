@@ -22,8 +22,8 @@ class DefaultersResource extends Resource
     protected static ?string $navigationLabel = 'Deudas';
     protected static ?string $slug = 'defaulters';
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?int $navigationSort = 1;
-    protected static ?string $navigationGroup = 'Clientes';
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Otros';
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -37,7 +37,8 @@ class DefaultersResource extends Resource
         return $table
             ->heading('Deudas')
             ->columns([
-                TextColumn::make('name'),
+                TextColumn::make('name')
+                    ->label('Nombre'),
                 TextColumn::make('total')
                     ->label('Deuda')
                     ->money('EUR')

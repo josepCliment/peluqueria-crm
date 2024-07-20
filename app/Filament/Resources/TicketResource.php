@@ -21,6 +21,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\View\Components\Modal;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -45,7 +46,6 @@ class TicketResource extends Resource
         }
         return $form
             ->schema([
-
                 Section::make([
                     Select::make('cliente_id')
                         ->searchable()
@@ -54,7 +54,6 @@ class TicketResource extends Resource
                         ->required()
                         ->relationship(name: 'cliente', titleAttribute: 'name'),
                     Radio::make('payment_method')
-                        ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->reactive()
                         ->disabled(fn (Get $get): bool => !filled($get('status')))
                         ->options([
@@ -62,18 +61,16 @@ class TicketResource extends Resource
                             TicketPayment::CASH => 'Efectivo'
                         ]),
                     Select::make('status')
-                        ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->label(__("Estado"))
                         ->options(TicketState::class)
                         ->live(),
 
                     Placeholder::make('total_debt')
-                        ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->label('Deuda acumulada')
-                        ->live()
+                        ->content(fn (Model $record) => $record->cliente->totalDebt() . ' €')
                         ->content(new HtmlString("<span style='color: red; font-size: 16px;'>$total_debt €</span>"))
 
-                ])->columns(2),
+                ])->columns(2)
             ]);
     }
 

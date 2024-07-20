@@ -18,7 +18,7 @@ class TotalCharts extends ApexChartWidget
      * @var string
      */
     protected static ?string $chartId = 'totalCharts';
-
+    protected static ?int $sort = 1;
     /**
      * Widget Title
      *
@@ -35,12 +35,12 @@ class TotalCharts extends ApexChartWidget
     protected static ?string $pollingInterval = null;
     protected function getOptions(): array
     {
-        $userrevenue = Ticket::selectRaw("year(created_at) year, monthname(created_at) month, SUM(cprice* quantity) as total  ")
+        $userrevenue = env('DB_CONNECTION') === 'mysql' ? Ticket::selectRaw("year(created_at) year, monthname(created_at) month, SUM(cprice* quantity) as total  ")
             ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
             ->where('user_id', '=', $this->filterFormData)
             ->groupBy('year', 'month')
             ->get()
-            ->toArray();
+            ->toArray() : [];
 
         return [
             'chart' => [

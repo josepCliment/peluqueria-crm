@@ -35,6 +35,7 @@ class BillResource extends Resource
     protected static ?string $navigationIcon = 'solar-bill-check-outline';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationGroup = 'Otros';
+    protected static ?string $label = "Facturas";
 
     public static function form(Form $form): Form
     {
@@ -81,6 +82,7 @@ class BillResource extends Resource
                     ->badge()
                     ->money('EUR'),
                 TextColumn::make('state')
+                    ->label('Estado')
                     ->getStateUsing(function (Model $record) {
                         switch (BillState::from($record->state)) {
                             case BillState::DEVUELTA:
@@ -128,6 +130,7 @@ class BillResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ]);
     }
 
