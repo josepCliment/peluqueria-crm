@@ -35,6 +35,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'role'
     ];
 
 
@@ -52,7 +53,6 @@ class User extends Authenticatable implements FilamentUser
         'id',
         'password',
         'remember_token',
-        'role'
     ];
 
     /**
@@ -70,7 +70,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        return $this->role == UserRoleEnum::SUPERADMIN->value;
+        return $this->role == UserRoleEnum::Superadmin->value;
     }
 
     public function getTotal()

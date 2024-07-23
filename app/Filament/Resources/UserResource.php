@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRoleEnum;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
@@ -22,6 +23,7 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-c-user-group';
     protected static ?string $navigationLabel = "Usuarios";
     protected static ?string $navigationGroup = 'Usuarios';
+    protected static ?string $label = "Usuarios";
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationBadgeTooltip = 'Número de usuarios';
     public static function form(Form $form): Form
@@ -40,10 +42,7 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Select::make('role')->label(__('Puesto'))
-                    ->options([
-                        'superadmin' => 'Administrador',
-                        'user' => 'Empleado'
-                    ])->native(false)
+                    ->options(UserRoleEnum::class)->native(false)
                     ->required()
 
             ]);
