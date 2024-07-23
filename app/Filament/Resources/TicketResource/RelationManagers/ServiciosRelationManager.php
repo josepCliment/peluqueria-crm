@@ -107,6 +107,7 @@ class ServiciosRelationManager extends RelationManager
                         Grid::make(3)
                             ->schema([
                                 Select::make('user_id')
+                                    ->label('Empleado/a')
                                     ->relationship('user', 'name')
                                     ->preload()
                                     ->required(),
