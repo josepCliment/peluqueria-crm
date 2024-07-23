@@ -24,6 +24,7 @@ class DefaultersResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationGroup = 'Otros';
+    protected static ?string $label = "Deudores";
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
