@@ -31,6 +31,7 @@ class ServicioResource extends Resource
                 TextInput::make('price')
                     ->placeholder('00.00')
                     ->inputMode('decimal')->label(__('Precio'))
+                    ->numeric()
                     ->required(),
             ]);
     }
