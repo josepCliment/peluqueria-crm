@@ -29,19 +29,14 @@ class StatsOverview extends BaseWidget
         ];
     }
 
-
     protected function getTotalBenefit()
     {
-        $total_bills_amount = Bill::whereMonth('payment_date', Carbon::now()->month)->sum('amount');
-        $total_benefits = Ticket::whereMonth('created_at', '=', Carbon::now())->sum('total');
+        $total_bills_amount = Bill::whereDay('payment_date', Carbon::now()->day)->sum('amount');
+        $total_benefits = Ticket::whereDay('created_at', '=', Carbon::now())->sum('total');
         $total_revenue = $total_benefits - $total_bills_amount;
-        return Stat::make('Beneficios totales: ', ($total_revenue) . " €")
-            ->color($this->checkTotalBenefits($total_revenue) ? 'success' : 'danger');
-    }
-
-    private function checkTotalBenefits($total_revenue): bool
-    {
-        return $total_revenue < 0;
+        return Stat::make('Beneficios diarios: ', "$total_revenue €")
+            ->description("Sin contar descuentos")
+            ->color("info");
     }
 
     protected function getTotalRevenueMonthlyStat(): Stat

@@ -10,6 +10,7 @@ use App\Models\Cliente;
 use App\Models\Ticket;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
@@ -78,7 +79,8 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('cliente.name'),
+                Tables\Columns\TextColumn::make('cliente.name')
+                    ->searchable(),
                 TextColumn::make('total')
                     ->label('Total')
                     ->money('EUR'),
@@ -100,6 +102,7 @@ class TicketResource extends Resource
                     ->badge()
                     ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -125,7 +128,6 @@ class TicketResource extends Resource
     {
         return [];
     }
-
 
     public static function getPages(): array
     {
