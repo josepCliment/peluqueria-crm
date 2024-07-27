@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class Ticket extends Model
 {
     use HasFactory;
+    public $timestamps = true;
     protected $fillable = [
         'status',
         'payment_method',

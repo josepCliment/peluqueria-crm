@@ -25,6 +25,7 @@ use Filament\Resources\Resource;
 use Filament\Support\View\Components\Modal;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -95,13 +96,20 @@ class TicketResource extends Resource
                         'Deuda' => 'danger',
                     })->sortable(),
                 TextColumn::make('payment_method')
-                    ->label(__("Estado"))
+                    ->label(__("Método de pago"))
                     ->getStateUsing(function (Model $record) {
                         return $record->payment_method === TicketPayment::CARD ? 'Tarjeta' : ($record->payment_method === TicketPayment::CASH ? 'Efectivo' : '');
                     })
                     ->badge()
                     ->sortable(),
+                TextColumn::make('created_at')
+                    ->label(__("Fecha"))
+                    ->dateTime('d-m-Y H:i')
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(),
             ])
+            ->filters([])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
