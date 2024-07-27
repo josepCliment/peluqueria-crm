@@ -19,10 +19,9 @@ class User extends Authenticatable implements FilamentUser
     use HasFactory, Notifiable;
     public function canAccessPanel(Panel $panel): bool
     {
-
-        if ($panel->getId() === 'admin') {
-            return $this->isAdmin();
-        }
+        // if ($panel->getId() === 'admin') {
+        //     return $this->isAdmin();
+        // }
 
         return true;
     }
@@ -87,16 +86,4 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(TicketServicio::class, 'user_id', 'id');
     }
-    // public function servicios()
-    // {
-    //     return $this->belongsToMany(Servicio::class, TicketServicio::class)
-    //         ->withPivot(['pivot_id', 'ticket_id',  'discount', 'cprice', 'quantity'])
-    //         ->using(TicketServicio::class);
-    // }
-    // public function tickets()
-    // {
-    //     return $this->belongsToMany(Ticket::class, TicketServicio::class)
-    //         ->withPivot(['pivot_id', 'servicio_id', 'discount', 'cprice', 'quantity'])
-    //         ->using(TicketServicio::class);
-    // }
 }

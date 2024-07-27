@@ -26,6 +26,12 @@ class UserResource extends Resource
     protected static ?string $label = "Usuarios";
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationBadgeTooltip = 'Número de usuarios';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->isAdmin();
+    }
+
     public static function form(Form $form): Form
     {
         return $form

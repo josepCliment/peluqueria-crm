@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use App\Enums\Ticket\TicketPayment;
+use App\Enums\Ticket\TicketState;
 use App\Filament\App\Resources\TicketResource\Pages;
 use App\Filament\App\Resources\TicketResource\RelationManagers;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
@@ -28,7 +29,7 @@ class TicketResource extends Resource
 {
     protected static ?string $model = Ticket::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-ticket';
 
     public static function form(Form $form): Form
     {
@@ -42,32 +43,29 @@ class TicketResource extends Resource
             ->schema([
                 Section::make([
                     Select::make('cliente_id')
-                        ->required()
                         ->searchable()
+                        ->filled()
+                        ->preload()
+                        ->required()
                         ->relationship(name: 'cliente', titleAttribute: 'name'),
                     Radio::make('payment_method')
-                        ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->reactive()
                         ->disabled(fn (Get $get): bool => !filled($get('status')))
                         ->options([
-                            'card' => 'Tarjeta',
-                            'cash' => 'Efectivo'
+                            TicketPayment::CARD => 'Tarjeta',
+                            TicketPayment::CASH => 'Efectivo'
                         ]),
                     Select::make('status')
-                        ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->label(__("Estado"))
-                        ->options([
-                            'paid' => 'Pagado',
-                            'debt' => 'No pagado'
-                        ])
+                        ->options(TicketState::class)
                         ->live(),
 
                     Placeholder::make('total_debt')
-                        ->hidden(fn (string $operation): bool => $operation === 'create')
                         ->label('Deuda acumulada')
+                        ->content(fn (Model $record) => $record->cliente->totalDebt() . ' €')
                         ->content(new HtmlString("<span style='color: red; font-size: 16px;'>$total_debt €</span>"))
 
-                ])->columns(2),
+                ])->columns(2)
             ]);
     }
 
@@ -75,8 +73,10 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('cliente.name')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('cliente.name'),
+                TextColumn::make('total')
+                    ->label('Total')
+                    ->money('EUR'),
                 TextColumn::make('status')
                     ->label(__("Estado"))
                     ->badge()
@@ -88,24 +88,24 @@ class TicketResource extends Resource
                         'Deuda' => 'danger',
                     })->sortable(),
                 TextColumn::make('payment_method')
-                    ->label(__("Forma de pago"))
+                    ->label(__("Estado"))
                     ->getStateUsing(function (Model $record) {
                         return $record->payment_method === TicketPayment::CARD ? 'Tarjeta' : ($record->payment_method === TicketPayment::CASH ? 'Efectivo' : '');
                     })
-                    ->badge(),
-                TextColumn::make('created_at')
-                    ->label(__("Fecha"))
-                    ->dateTime()
-
+                    ->badge()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -115,6 +115,12 @@ class TicketResource extends Resource
             ServiciosRelationManager::class,
         ];
     }
+
+    public static function getWidgets(): array
+    {
+        return [];
+    }
+
 
     public static function getPages(): array
     {

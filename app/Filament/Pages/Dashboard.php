@@ -2,17 +2,28 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Tables\Columns\Layout\Panel;
-use Filament\Widgets\StatsOverviewWidget\Stat;
-use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use App\Filament\Widgets\BillsChart;
+use App\Filament\Widgets\StatsOverview;
+use App\Filament\Widgets\TotalCharts;
+use Filament\Facades\Filament;
+use Filament\Pages\BasePage;
+use Filament\Pages\Dashboard as PagesDashboard;
 
-class Dashboard extends \Filament\Pages\Dashboard
+class Dashboard extends PagesDashboard
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-home';
 
-    public function panel(Panel $panel): Panel
+    protected static string $view = 'filament.pages.dashboard';
+
+    protected function getHeaderWidgets(): array
     {
-        return $panel
-            ->pages([]);
+        $isAdmin = auth()->user()->isAdmin();
+
+        return $isAdmin ?
+            [
+                StatsOverview::class,
+                BillsChart::class,
+                TotalCharts::class,
+            ] : [];
     }
 }
