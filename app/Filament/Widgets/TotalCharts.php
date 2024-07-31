@@ -35,13 +35,6 @@ class TotalCharts extends ApexChartWidget
     protected static ?string $pollingInterval = null;
     protected function getOptions(): array
     {
-        $userrevenue = env('DB_CONNECTION') === 'mysql' ? Ticket::selectRaw("year(created_at) year, monthname(created_at) month, SUM(cprice* quantity) as total  ")
-            ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
-            ->where('user_id', '=', $this->filterFormData)
-            ->groupBy('year', 'month')
-            ->get()
-            ->toArray() : [];
-
         return [
             'chart' => [
                 'type' => 'bar',
@@ -50,7 +43,7 @@ class TotalCharts extends ApexChartWidget
             'series' => [
                 [
                     'name' => 'Caja total',
-                    'data' => $this->getDataFromUserRevenue($userrevenue),
+                    'data' => $this->getDataFromUserRevenue($this->buildQuerys()),
                 ],
             ],
             'xaxis' => [
@@ -71,6 +64,25 @@ class TotalCharts extends ApexChartWidget
             'colors' => ['#f59e0b'],
         ];
     }
+
+    private function buildQuerys()
+    {
+        return env('DB_CONNECTION') === 'mysql' ? Ticket::selectRaw("year(created_at) year, monthname(created_at) month, 
+                SUM(cprice* quantity) as total  ")
+            ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
+            ->where('user_id', '=', $this->filterFormData)
+            ->groupBy('year', 'month')
+            ->get()
+            ->toArray() :
+            Ticket::selectRaw("strftime('%Y', created_at) year, 
+            substr('JanFebMarAprMayJunJulAugSepOctNovDec', 1 + 3*strftime('%m', date('now')), -3) as month,
+             SUM(cprice* quantity) as total ")
+            ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
+            ->where('user_id', '=', $this->filterFormData)
+            ->groupBy('year', 'month')
+            ->get()
+            ->toArray();
+    }
     protected function getType(): string
     {
         return 'bar';
@@ -90,6 +102,7 @@ class TotalCharts extends ApexChartWidget
         $data = array_fill(0, 12, 0);
 
         foreach ($userrevenue as $item) {
+            $item = (array) $item;
             $monthIndex = array_search(substr($item['month'], 0, 3), $this->getMonthLabels());
             if ($monthIndex !== false) {
                 $data[$monthIndex] = (float) $item['total'];

@@ -15,6 +15,7 @@ class Dashboard extends PagesDashboard
 
     protected static string $view = 'filament.pages.dashboard';
 
+
     protected function getHeaderWidgets(): array
     {
         $isAdmin = auth()->user()->isAdmin();

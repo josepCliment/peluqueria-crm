@@ -13,14 +13,19 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StatsOverview extends BaseWidget
 {
     protected static ?string $pollingInterval = null;
     protected function getStats(): array
     {
+        $diff_total_between_months = Cliente::whereMonth('created_at', '=', Carbon::now()->month)->count() - Cliente::whereMonth('created_at', '=', $this->getMonthSubstracted())->count();
         return [
-            Stat::make('Clientes totales', $this->getTotalClients()),
+            Stat::make('Clientes totales', $this->getTotalClients())
+                ->description($this->checkRevenue($diff_total_between_months) ?
+                    $diff_total_between_months . " más que el més pasado" :
+                    $diff_total_between_months . " menos que el més pasado"),
             $this->getTotalRevenueMonthlyStat(),
             Stat::make('Facturas este mes', Bill::whereMonth('payment_date', Carbon::now()->month)
                 ->whereYear('payment_date', Carbon::now()->year)
@@ -28,6 +33,8 @@ class StatsOverview extends BaseWidget
             $this->getTotalBenefit()
         ];
     }
+
+    //Beneficios totales
 
     protected function getTotalBenefit()
     {
@@ -39,10 +46,13 @@ class StatsOverview extends BaseWidget
             ->color("info");
     }
 
+    //Caja Total
+
     protected function getTotalRevenueMonthlyStat(): Stat
     {
-        $ticket = Ticket::whereMonth('created_at', '=', Carbon::now())->sum('total');
-        $tickets_month_before = Ticket::whereMonth('created_at', '=', Carbon::now()->subMonth())->sum('total');
+        $ticket = Ticket::whereMonth('created_at', '=', Carbon::now()->month)->sum('total');
+        $tickets_month_before = Ticket::whereMonth('created_at', '=', $this->getMonthSubstracted())->sum('total');
+
         $diff_total_between_months = $ticket - $tickets_month_before;
         return Stat::make('Caja total este mes', $ticket . "€")
             ->description($this->checkRevenue($diff_total_between_months) ?
@@ -73,5 +83,9 @@ class StatsOverview extends BaseWidget
     protected function getWidgets(): array
     {
         return [];
+    }
+    private function getMonthSubstracted(): int
+    {
+        return Carbon::now()->month > 1 ? Carbon::now()->month - 1 : Carbon::now()->subMonth()->month;
     }
 }

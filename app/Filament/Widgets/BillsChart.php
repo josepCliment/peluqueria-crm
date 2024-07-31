@@ -4,6 +4,8 @@ namespace App\Filament\Widgets;
 
 use App\Models\Bill;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class BillsChart extends ApexChartWidget
@@ -32,19 +34,7 @@ class BillsChart extends ApexChartWidget
 
     protected function getOptions(): array
     {
-
-        $ticket_monthly = env('DB_CONNECTION') === 'mysql' ? Bill::selectRaw("year(payment_date) year, monthname(payment_date) month, SUM(amount) as total ")
-            ->groupBy('year', 'month')
-            ->get()
-            ->toArray() : [];
-        $data = array_fill(0, 12, 0);
-
-        foreach ($ticket_monthly as $item) {
-            $monthIndex = array_search(substr($item['month'], 0, 3), $this->getMonthLabels());
-            if ($monthIndex !== false) {
-                $data[$monthIndex] = (float) $item['total'];
-            }
-        }
+        $data =  $this->fillData($this->buildQuerys());
 
         return [
             'chart' => [
@@ -82,5 +72,31 @@ class BillsChart extends ApexChartWidget
     protected function getMonthLabels(): array
     {
         return ['Jan', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    }
+    private function fillData(array $ticket_monthly)
+    {
+        $data = array_fill(0, 12, 0);
+        foreach ($ticket_monthly as $item) {
+            $item = (array) $item;
+            $monthIndex = array_search(substr($item['month'], 0, 3), $this->getMonthLabels());
+            if ($monthIndex !== false) {
+                $data[$monthIndex] = (float) $item['total'];
+            }
+        }
+        return $data;
+    }
+
+    private function buildQuerys(): array
+    {
+        return env('DB_CONNECTION') === 'mysql' ?
+            Bill::selectRaw("year(payment_date) year, monthname(payment_date) month, SUM(amount) as total ")
+            ->groupBy('year', 'month')
+            ->get()
+            ->toArray() :
+
+            Bill::selectRaw("strftime('%Y', payment_date) year, substr('JanFebMarAprMayJunJulAugSepOctNovDec', 1 + 3*strftime('%m', date('now')), -3) as month, SUM(amount) as total ")
+            ->groupBy('year', 'month')
+            ->get()
+            ->toArray();
     }
 }
