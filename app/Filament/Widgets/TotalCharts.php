@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
@@ -67,21 +68,25 @@ class TotalCharts extends ApexChartWidget
 
     private function buildQuerys()
     {
-        return Ticket::selectRaw("year(created_at) year, monthname(created_at) month, 
+
+        if (App::environment(['dev'])) {
+            return Ticket::selectRaw("strftime('%Y', created_at) year, 
+            substr('JanFebMarAprMayJunJulAugSepOctNovDec', 1 + 3*strftime('%m', date('now')), -3) as month,
+             SUM(cprice* quantity) as total ")
+                ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
+                ->where('user_id', '=', $this->filterFormData)
+                ->groupBy('year', 'month')
+                ->get()
+                ->toArray();
+        }
+        return
+            Ticket::selectRaw("year(created_at) year, monthname(created_at) month, 
                 SUM(cprice* quantity) as total  ")
             ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
             ->where('user_id', '=', $this->filterFormData)
             ->groupBy('year', 'month')
             ->get()
             ->toArray();
-        // Ticket::selectRaw("strftime('%Y', created_at) year, 
-        // substr('JanFebMarAprMayJunJulAugSepOctNovDec', 1 + 3*strftime('%m', date('now')), -3) as month,
-        //  SUM(cprice* quantity) as total ")
-        // ->join('ticket_servicio', 'id', '=', 'ticket_servicio.ticket_id')
-        // ->where('user_id', '=', $this->filterFormData)
-        // ->groupBy('year', 'month')
-        // ->get()
-        // ->toArray();
     }
     protected function getType(): string
     {

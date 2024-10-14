@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Bill;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
@@ -88,16 +89,17 @@ class BillsChart extends ApexChartWidget
 
     private function buildQuerys(): array
     {
-        return 
+
+        if (App::environment(['dev'])) {
+            return Bill::selectRaw("strftime('%Y', payment_date) year, substr('JanFebMarAprMayJunJulAugSepOctNovDec', 1 + 3*strftime('%m', date('now')), -3) as month, SUM(amount) as total ")
+                ->groupBy('year', 'month')
+                ->get()
+                ->toArray();
+        }
+        return
             Bill::selectRaw("year(payment_date) year, monthname(payment_date) month, SUM(amount) as total ")
             ->groupBy('year', 'month')
             ->get()
             ->toArray();
-            
-            // :
-            // Bill::selectRaw("strftime('%Y', payment_date) year, substr('JanFebMarAprMayJunJulAugSepOctNovDec', 1 + 3*strftime('%m', date('now')), -3) as month, SUM(amount) as total ")
-            // ->groupBy('year', 'month')
-            // ->get()
-            // ->toArray();
     }
 }

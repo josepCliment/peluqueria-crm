@@ -8,29 +8,20 @@ use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers\ServiciosRelationManager;
 use App\Models\Cliente;
 use App\Models\Ticket;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\Builder;
+use Closure;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Split;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
-use Filament\Support\View\Components\Modal;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
-use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 class TicketResource extends Resource
 {
@@ -54,10 +45,12 @@ class TicketResource extends Resource
                         ->filled()
                         ->preload()
                         ->required()
-                        ->relationship(name: 'cliente', titleAttribute: 'name'),
+                        ->reactive()
+                        ->relationship(name: 'cliente', titleAttribute: 'name')
+                       ,
                     Radio::make('payment_method')
                         ->reactive()
-                        ->disabled(fn (Get $get): bool => !filled($get('status')))
+                        ->disabled(fn(Get $get): bool => !filled($get('status')))
                         ->options([
                             TicketPayment::CARD => 'Tarjeta',
                             TicketPayment::CASH => 'Efectivo'
@@ -69,8 +62,13 @@ class TicketResource extends Resource
 
                     Placeholder::make('total_debt')
                         ->label('Deuda acumulada')
-                        ->content(fn (Model $record) => $record->cliente->totalDebt() . ' €')
-                        ->content(new HtmlString("<span style='color: red; font-size: 16px;'>$total_debt €</span>"))
+                        ->reactive()
+                        ->content(function (Get $get) {
+                            $clienteId = $get('cliente_id');
+                            $cliente = Cliente::find($clienteId);
+                            $totalDebt = $cliente ? $cliente->totalDebt() : 0;
+                            return new HtmlString("<span style='color: red; font-size: 16px;'>$totalDebt €</span>");
+                        }),
 
                 ])->columns(2)
             ]);
@@ -91,7 +89,7 @@ class TicketResource extends Resource
                     ->getStateUsing(function (Model $record) {
                         return $record->status === "paid" ? 'Pagado' : 'Deuda';
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Pagado' => 'success',
                         'Deuda' => 'danger',
                     })->sortable(),
