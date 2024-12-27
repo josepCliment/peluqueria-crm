@@ -3,9 +3,7 @@
 namespace App\Providers;
 
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
-use Filament\Support\Assets\Js;
-use Filament\Support\Facades\FilamentAsset;
-use Illuminate\Foundation\Vite;
+
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
